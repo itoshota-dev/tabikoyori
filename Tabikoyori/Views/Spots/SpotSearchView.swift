@@ -366,12 +366,9 @@ struct SpotSearchView: View {
     /// 地図を作る前の画面。すぐ操作できるようにして、検索してもらう間に地図を準備する
     private var mapStartPanel: some View {
         ZStack {
-            LinearGradient(
-                colors: [Theme.sandLight, Theme.background],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            VStack(spacing: 14) {
+            // ほかの画面と同じ背景色にそろえる
+            Theme.background
+            VStack(spacing: 12) {
                 if mapLoading || search.isSearching {
                     ProgressView()
                     Text(search.isSearching ? "検索して、地図を準備しています…" : "地図を準備しています…")
@@ -384,9 +381,11 @@ struct SpotSearchView: View {
                     Text("行きたい場所を検索しましょう")
                         .font(.system(size: 15, weight: .medium))
                         .foregroundStyle(Theme.text)
-                    Text("検索するか、地図上のスポットをタップして詳細を確認できます")
-                        .font(.system(size: 12))
+                    Text("検索するか、地図上のスポットをタップして\n詳細を確認できます。")
+                        .font(.system(size: 13))
                         .foregroundStyle(Theme.subText)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 20)
                     VStack(spacing: 8) {
                         ForEach(["京都 カフェ", "沖縄 ビーチ", "パリ 美術館"], id: \.self) { word in
                             Button {
