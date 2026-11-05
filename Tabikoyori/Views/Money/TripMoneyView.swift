@@ -347,6 +347,14 @@ struct TripMoneyView: View {
                     .foregroundStyle(Theme.subText)
                     .lineLimit(1)
                     .minimumScaleFactor(0.85)
+                // 外貨で入力した支出は、もとの金額とレートも出す(例:€12.50 · 1 EUR = 162.45円)
+                if expense.isForeign, let original = expense.originalAmount, let rate = expense.rate {
+                    Text("\(Currency(code: expense.currency).format(original)) · 1 \(expense.currency) = \(NSDecimalNumber(decimal: rate).stringValue)円")
+                        .font(.system(size: 11))
+                        .foregroundStyle(Theme.subText)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.85)
+                }
             }
             Spacer(minLength: 4)
             VStack(alignment: .trailing, spacing: 6) {

@@ -2,7 +2,7 @@ import SwiftUI
 
 // MARK: - 支出を追加・編集
 
-/// 支出を追加・編集するシート
+/// 支出を追加・編集するシート。外貨で入力したときは、レートで円に換算して保存する
 struct ExpenseEditSheet: View {
     @Environment(TripStore.self) private var store
     @Environment(\.dismiss) private var dismiss
@@ -12,11 +12,25 @@ struct ExpenseEditSheet: View {
 
     @State private var title = ""
     @State private var amountText = ""
+    @State private var currencyCode = Currency.yenCode
+    /// 外貨1単位が何円か(今は手入力。次の段階で、支出日のレートを自動で入れる)
+    @State private var rateText = ""
     @State private var category: ExpenseCategory = .food
     @State private var date = Date()
     @State private var note = ""
 
-    private var amount: Int { Int(amountText.filter(\.isNumber)) ?? 0 }
+    private var currency: Currency { Currency(code: currencyCode) }
+    /// 入力した金額(選んだ通貨の単位)
+    private var inputAmount: Decimal? { CurrencyConversion.parse(amountText) }
+    private var rate: Decimal? { CurrencyConversion.parse(rateText) }
+
+    /// 保存する円の金額。外貨はレートで換算する。計算できないときは 0(保存できない)
+    private var yenAmount: Int {
+        guard let inputAmount else { return 0 }
+        if currency.isYen { return CurrencyConversion.yen(from: inputAmount, rate: 1) }
+        guard let rate, rate > 0 else { return 0 }
+        return CurrencyConversion.yen(from: inputAmount, rate: rate)
+    }
 
     var body: some View {
         NavigationStack {
@@ -25,9 +39,60 @@ struct ExpenseEditSheet: View {
                     AppFieldCard {
                         AppTextField(prompt: "例：京都駅でランチ", text: $title, boxed: false)
                         AppFieldDivider()
-                        AppTextField(prompt: "0", text: $amountText, label: "金額", keyboard: .numberPad, alignment: .trailing, suffix: "円", boxed: false)
+                        AppTextField(
+                            prompt: "0",
+                            text: $amountText,
+                            label: "金額",
+                            keyboard: currency.isYen ? .numberPad : .decimalPad,
+                            alignment: .trailing,
+                            suffix: currency.isYen ? "円" : currency.code,
+                            boxed: false
+                        )
                     }
                     .fieldRow()
+                }
+                Section("通貨") {
+                    Picker("通貨", selection: $currencyCode) {
+                        ForEach(Currency.common) { c in
+                            Text("\(c.name)(\(c.code))").tag(c.code)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                }
+                if !currency.isYen {
+                    Section("レート") {
+                        // 「支出の内容」と同じく、1枚のカードにレートの入力と換算した金額を並べる
+                        AppFieldCard {
+                            AppTextField(
+                                prompt: "例：162.45",
+                                text: $rateText,
+                                label: "1 \(currency.code) =",
+                                keyboard: .decimalPad,
+                                alignment: .trailing,
+                                suffix: "円",
+                                boxed: false
+                            )
+                            AppFieldDivider()
+                            HStack {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("円に換算")
+                                        .font(.body)
+                                        .foregroundStyle(Theme.text)
+                                    Text("合計や予算は、この金額で計算します")
+                                        .font(.system(size: 12))
+                                        .foregroundStyle(Theme.subText)
+                                }
+                                Spacer()
+                                Text(yenAmount > 0 ? "≈ \(DisplayFormat.yen(yenAmount))" : "—")
+                                    .font(.body.weight(.semibold))
+                                    .foregroundStyle(Theme.accentDark)
+                            }
+                            .padding(.horizontal, FieldMetrics.horizontalPadding)
+                            .padding(.vertical, 10)
+                            .frame(maxWidth: .infinity, minHeight: FieldMetrics.height)
+                        }
+                        .fieldRow()
+                    }
                 }
                 Section("カテゴリー") {
                     Picker("種類", selection: $category) {
@@ -59,7 +124,8 @@ struct ExpenseEditSheet: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("保存") { save() }
                         .fontWeight(.semibold)
-                        .disabled(amount <= 0)
+                        // 金額が入っていない、または外貨でレートが入っていないときは保存できない
+                        .disabled(yenAmount <= 0)
                 }
             }
             .onAppear(perform: load)
@@ -69,16 +135,24 @@ struct ExpenseEditSheet: View {
     private func load() {
         if let expense {
             title = expense.title
-            amountText = String(expense.amount)
             category = expense.category
             date = expense.date
             note = expense.note
+            currencyCode = expense.currency
+            if expense.isForeign, let original = expense.originalAmount {
+                amountText = NSDecimalNumber(decimal: original).stringValue
+                rateText = expense.rate.map { NSDecimalNumber(decimal: $0).stringValue } ?? ""
+            } else {
+                amountText = String(expense.amount)
+            }
         } else if let trip = store.trip(tripID) {
             let cal = Calendar.current
             let start = cal.startOfDay(for: trip.startDate)
             let end = cal.date(byAdding: .day, value: 1, to: cal.startOfDay(for: trip.endDate)) ?? trip.endDate
             let now = Date()
             date = (now >= start && now < end) ? now : trip.startDate
+            // その旅行で最後に使った通貨を、最初から選んでおく(イタリア旅行なら、2件目からユーロになる)
+            currencyCode = trip.expenses.last?.currency ?? Currency.yenCode
         }
     }
 
@@ -86,7 +160,10 @@ struct ExpenseEditSheet: View {
         let trimmed = title.trimmingCharacters(in: .whitespacesAndNewlines)
         var value = expense ?? Expense(title: "", amount: 0, category: category, date: date)
         value.title = trimmed.isEmpty ? category.label : trimmed
-        value.amount = amount
+        value.amount = yenAmount
+        value.currency = currencyCode
+        value.originalAmount = currency.isYen ? nil : inputAmount
+        value.rate = currency.isYen ? nil : rate
         value.category = category
         value.date = date
         value.note = note.trimmingCharacters(in: .whitespacesAndNewlines)
