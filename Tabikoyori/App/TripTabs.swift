@@ -14,11 +14,9 @@ struct ItineraryTab: View {
             }
             .id(id)
         } else {
-            ContentUnavailableView(
-                "旅行がありません",
-                systemImage: "airplane",
-                description: Text("ホームから新しい旅を作成してください。")
-            )
+            NavigationStack {
+                NoTripView(screenTitle: "旅程")
+            }
         }
     }
 }
@@ -36,11 +34,7 @@ struct RouteTab: View {
                 TripMapView(tripID: id, switcher: true)
                     .id(id)
             } else {
-                ContentUnavailableView(
-                    "旅行がありません",
-                    systemImage: "airplane",
-                    description: Text("ホームから新しい旅を作成してください。")
-                )
+                NoTripView(screenTitle: "経路")
             }
         }
     }

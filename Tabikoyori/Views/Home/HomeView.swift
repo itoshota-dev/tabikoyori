@@ -206,16 +206,19 @@ struct HomeView: View {
     @ViewBuilder
     private var cards: some View {
         if filtered.isEmpty {
-            VStack(spacing: 10) {
-                Image(systemName: "airplane.departure")
-                    .font(.system(size: 36))
-                    .foregroundStyle(Theme.sand)
-                Text(store.trips.isEmpty ? "最初の旅を計画しましょう" : "該当する旅行がありません")
-                    .font(.serif(16))
-                    .foregroundStyle(Theme.subText)
+            if store.trips.isEmpty {
+                EmptyStateView(
+                    systemImage: "airplane.departure",
+                    title: "旅行はまだありません",
+                    message: "右下の＋から、最初の旅を計画しましょう。"
+                )
+            } else {
+                EmptyStateView(
+                    systemImage: "magnifyingglass",
+                    title: "該当する旅行がありません",
+                    message: "検索する言葉や絞り込みを変えてみてください。"
+                )
             }
-            .frame(maxWidth: .infinity)
-            .padding(.top, 60)
         } else {
             LazyVStack(spacing: 16) {
                 ForEach(filtered) { trip in

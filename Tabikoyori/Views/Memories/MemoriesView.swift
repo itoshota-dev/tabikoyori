@@ -23,19 +23,11 @@ struct MemoriesView: View {
                         }
                     }
                     if entries.isEmpty {
-                        VStack(spacing: 12) {
-                            Image(systemName: "photo.on.rectangle.angled")
-                                .font(.system(size: 38))
-                                .foregroundStyle(Theme.sand)
-                            Text("思い出はまだありません")
-                                .font(.system(size: 15, weight: .medium))
-                                .foregroundStyle(Theme.text)
-                            Text("右上の＋から、写真やメモを追加できます。")
-                                .font(.system(size: 13))
-                                .foregroundStyle(Theme.subText)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.top, 70)
+                        EmptyStateView(
+                            systemImage: "photo.on.rectangle.angled",
+                            title: "思い出はまだありません",
+                            message: "右上の＋から、写真やメモを追加できます。"
+                        )
                     } else {
                         MemoryTimeline(entries: entries, showsTripTitle: true)
                     }
