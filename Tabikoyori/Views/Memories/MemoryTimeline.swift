@@ -90,6 +90,7 @@ struct MemoryCard: View {
                                 .foregroundStyle(Theme.subText)
                                 .frame(width: 28, height: 22)
                                 .contentShape(Rectangle())
+                                .accessibilityLabel("思い出のメニュー") 
                         }
                     }
                     if let spot {

@@ -244,6 +244,7 @@ struct TripMapView: View {
                         }
                     } label: {
                         Image(systemName: "airplane")
+                            .accessibilityLabel("旅行を切り替え")
                     }
                     .menuOrder(.fixed)
                 }
@@ -495,6 +496,7 @@ struct TripMapView: View {
                         Image(systemName: AppleMapsLauncher.symbolName)
                             .font(.system(size: 19))
                             .foregroundStyle(Theme.accent)
+                            .accessibilityLabel("Apple マップで経路を開く")
                     }
                     .buttonStyle(.plain)
                 }

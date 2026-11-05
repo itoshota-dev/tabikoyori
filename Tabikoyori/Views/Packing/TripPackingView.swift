@@ -81,8 +81,10 @@ struct TripPackingView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button { showingNew = true } label: { Image(systemName: "plus") }
-            }
+                Button { showingNew = true } label: {
+                    Image(systemName: "plus")
+                        .accessibilityLabel("持ち物を追加")
+                }            }
         }
         .sheet(isPresented: $showingNew) {
             PackingEditSheet(tripID: tripID, item: nil)
@@ -350,6 +352,8 @@ struct TripPackingView: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .accessibilityLabel(item.name)
+            .accessibilityValue(item.checked ? "準備済み" : "未準備")
             .padding(.leading, -14)
             .padding(.trailing, -8)
             .padding(.vertical, -19)
@@ -400,6 +404,7 @@ struct TripPackingView: View {
                 Image(systemName: "ellipsis.circle")
                     .font(.system(size: 17))
                     .foregroundStyle(Theme.accent)
+                    .accessibilityLabel("\(item.name)のメニュー")
             }
             }
         }

@@ -129,6 +129,7 @@ struct PackingTemplateSheet: View {
                         Image(systemName: "ellipsis.circle")
                             .font(.system(size: 17))
                             .foregroundStyle(Theme.accent)
+                            .accessibilityLabel("テンプレートのメニュー") 
                     }
                 }
             }

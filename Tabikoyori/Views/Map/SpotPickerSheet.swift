@@ -178,6 +178,7 @@ struct SpotPickerSheet: View {
             Image(systemName: "checkmark.circle.fill")
                 .font(.system(size: 28))
                 .foregroundStyle(Theme.accent)
+                .accessibilityLabel("追加済み")
         } else {
             Button {
                 store.addSpot(spot, to: tripID, day: day)
@@ -185,6 +186,7 @@ struct SpotPickerSheet: View {
                 Image(systemName: "plus.circle.fill")
                     .font(.system(size: 28))
                     .foregroundStyle(Theme.accent)
+                    .accessibilityLabel("\(spot.name)を旅程に追加")
             }
             .buttonStyle(.plain)
         }

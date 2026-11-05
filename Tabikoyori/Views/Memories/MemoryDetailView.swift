@@ -67,6 +67,7 @@ struct MemoryDetailView: View {
                         Button("削除", systemImage: "trash", role: .destructive) { confirmDelete = true }
                     } label: {
                         Image(systemName: "ellipsis")
+                            .accessibilityLabel("思い出のメニュー")
                     }
                 }
             }

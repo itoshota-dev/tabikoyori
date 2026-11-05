@@ -43,8 +43,10 @@ struct TripMoneyView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button { showingNew = true } label: { Image(systemName: "plus") }
-            }
+                Button { showingNew = true } label: {
+                    Image(systemName: "plus")
+                        .accessibilityLabel("支出を追加")
+                }            }
         }
         .sheet(isPresented: $showingNew) {
             ExpenseEditSheet(tripID: tripID, expense: nil)
@@ -358,6 +360,7 @@ struct TripMoneyView: View {
                     Image(systemName: "ellipsis.circle")
                         .font(.system(size: 17))
                         .foregroundStyle(Theme.accent)
+                        .accessibilityLabel("\(expense.title)のメニュー") 
                 }
             }
         }

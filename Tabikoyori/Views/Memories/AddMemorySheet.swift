@@ -101,6 +101,7 @@ struct AddMemorySheet: View {
                                                 Image(systemName: "xmark.circle.fill")
                                                     .font(.system(size: 20))
                                                     .foregroundStyle(.white, Color.black.opacity(0.55))
+                                                    .accessibilityLabel("この写真を外す") 
                                             }
                                             .buttonStyle(.plain)
                                             .padding(4)

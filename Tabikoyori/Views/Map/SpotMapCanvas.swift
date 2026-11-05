@@ -356,6 +356,7 @@ struct MapSearchBar<Trailing: View>: View {
                     onClear()
                 } label: {
                     Image(systemName: "xmark.circle.fill").foregroundStyle(Theme.sand)
+                        .accessibilityLabel("検索の文字を消す")
                 }
                 .buttonStyle(.plain)
             }

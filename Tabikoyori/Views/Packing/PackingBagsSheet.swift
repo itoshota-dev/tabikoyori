@@ -86,6 +86,7 @@ struct PackingBagsSheet: View {
                     .font(.system(size: 18))
                     .foregroundStyle(Theme.accent)
                     .frame(width: 28)
+                    .accessibilityLabel("カバンの種類:\(bag.kind.label)")
             }
             AppTextField(prompt: "カバンの名前", text: Binding(
                 get: { bag.name },
