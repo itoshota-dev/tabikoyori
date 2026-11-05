@@ -93,6 +93,7 @@ struct BookmarkButton: View {
                 .foregroundStyle(saved ? Theme.accent : Theme.subText)
                 .frame(width: 32, height: 32)
                 .contentShape(Rectangle())
+                .accessibilityLabel(saved ? "お気に入りから外す" : "お気に入りに追加")
         }
         .buttonStyle(.plain)
     }

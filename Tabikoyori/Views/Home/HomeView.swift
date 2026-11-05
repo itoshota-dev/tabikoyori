@@ -165,6 +165,7 @@ struct HomeView: View {
                     .font(.system(size: 19))
                     .foregroundStyle(Theme.accentDark)
                     .frame(width: 36, height: 36)
+                    .accessibilityLabel("お知らせ")
             }
             AvatarView(name: store.userName, size: 34)
             // 設定(下のメニューから移動)
@@ -173,6 +174,7 @@ struct HomeView: View {
                     .font(.system(size: 19))
                     .foregroundStyle(Theme.accentDark)
                     .frame(width: 36, height: 36)
+                    .accessibilityLabel("設定")
             }
         }
     }
@@ -199,6 +201,7 @@ struct HomeView: View {
                     .foregroundStyle(Theme.accentDark)
                     .frame(width: ChipMetrics.height, height: ChipMetrics.height)
                     .background(Theme.sandLight, in: Circle())
+                    .accessibilityLabel("並び替え")
             }
         }
     }
@@ -239,6 +242,7 @@ struct HomeView: View {
                                 .frame(width: 34, height: 34)
                                 .background(Color.black.opacity(0.28), in: Circle())
                                 .contentShape(Circle())
+                                .accessibilityLabel("\(trip.title)のメニュー")
                         }
                         .menuOrder(.fixed)
                         .padding(12)
@@ -268,6 +272,7 @@ struct HomeView: View {
                 .frame(width: 58, height: 58)
                 .background(Theme.accent, in: Circle())
                 .shadow(color: Theme.accent.opacity(0.4), radius: 10, x: 0, y: 5)
+                .accessibilityLabel("新しい旅行を作成")
         }
         .padding(.trailing, 22)
         .padding(.bottom, 16)

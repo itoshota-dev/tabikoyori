@@ -185,6 +185,7 @@ struct TimelineRow: View {
                 .foregroundStyle(Theme.subText)
                 .frame(width: 28, height: 22)
                 .contentShape(Rectangle())
+                .accessibilityLabel("予定のメニュー")
         }
     }
 }

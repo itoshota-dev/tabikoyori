@@ -137,18 +137,21 @@ struct TripDetailView: View {
                     }
                 } label: {
                     Image(systemName: "airplane")
+                        .accessibilityLabel("旅行を切り替え")
                 }
             }
         }
         ToolbarItemGroup(placement: .topBarTrailing) {
             NavigationLink(value: TripScreen.map(tripID)) {
                 Image(systemName: "map")
+                    .accessibilityLabel("経路の地図")
             }
             Menu {
                 Button("旅行を編集", systemImage: "pencil") { showingEdit = true }
                 Button("旅行を削除", systemImage: "trash", role: .destructive) { confirmDelete = true }
             } label: {
                 Image(systemName: "ellipsis.circle")
+                    .accessibilityLabel("旅行のメニュー")
             }
         }
     }
@@ -369,6 +372,7 @@ struct TripDetailView: View {
                         .frame(width: 50, height: 50)
                         .background(Theme.surface, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
                         .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(Theme.line, lineWidth: 1))
+                        .accessibilityLabel("お気に入りから予定を追加")
                 }
                 Button {
                     pickerMode = .map
