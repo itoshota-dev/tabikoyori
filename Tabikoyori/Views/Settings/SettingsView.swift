@@ -67,6 +67,10 @@ struct SettingsView: View {
                         .font(.system(size: 12))
                         .foregroundStyle(Theme.subText)
                         .listRowBackground(Theme.surface)
+                    Text("為替レートは、Frankfurter(frankfurter.dev)のデータを使っています。")
+                        .font(.system(size: 12))
+                        .foregroundStyle(Theme.subText)
+                        .listRowBackground(Theme.surface)
                 }
             }
             .scrollContentBackground(.hidden)
