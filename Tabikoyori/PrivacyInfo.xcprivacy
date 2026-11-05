@@ -1,12 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<!--
-   PrivacyInfo.xcprivacy
-   Tabikoyori
-
-   Created by Shota Ito on 2026/11/05.
-   Copyright (c) 2026 ___ORGANIZATIONNAME___. All rights reserved.
--->
 <plist version="1.0">
-<dict/>
+<dict>
+    <!-- 広告などのための追跡(トラッキング)はしない -->
+    <key>NSPrivacyTracking</key>
+    <false/>
+    <key>NSPrivacyTrackingDomains</key>
+    <array/>
+    <!-- 開発者が集めるデータはない -->
+    <key>NSPrivacyCollectedDataTypes</key>
+    <array/>
+    <!-- 使っている「理由の申告が必要な API」 -->
+    <key>NSPrivacyAccessedAPITypes</key>
+    <array>
+        <dict>
+            <!-- UserDefaults:アプリの設定(週の始まり・並べ替え・選んでいる旅行)を端末の中に保存するため -->
+            <key>NSPrivacyAccessedAPIType</key>
+            <string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+            <key>NSPrivacyAccessedAPITypeReasons</key>
+            <array>
+                <!-- CA92.1:アプリ自身だけが読み書きする情報の保存 -->
+                <string>CA92.1</string>
+            </array>
+        </dict>
+    </array>
+</dict>
 </plist>
