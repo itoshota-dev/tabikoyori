@@ -21,17 +21,34 @@ struct TripEditSheet: View {
     @State private var addedPhotos: [String] = []
     @State private var loaded = false
     @State private var didSave = false
+    
+    /// 前後の空白を除いた行き先。空のときは作成・保存できない
+    private var trimmedDestination: String {
+        destination.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
 
     var body: some View {
         NavigationStack {
             Form {
-                Section("旅行の名前") {
+                Section {
                     AppTextField(prompt: "例：京都の旅", text: $title)
                         .fieldRow()
+                } header: {
+                    Text("旅行の名前")
+                } footer: {
+                    Text("空のときは「行き先＋の旅」(例：京都の旅)になります。")
+                        .font(.system(size: 12))
+                        .foregroundStyle(Theme.subText)
                 }
-                Section("行き先") {
+                Section {
                     AppTextField(prompt: "例：京都、モンゴル、イタリア", text: $destination)
                         .fieldRow()
+                } header: {
+                    Text("行き先(必須)")
+                } footer: {
+                    Text("地図の表示やスポット検索の基準になります。")
+                        .font(.system(size: 12))
+                        .foregroundStyle(Theme.subText)
                 }
                 Section("日程") {
                     DatePicker("出発", selection: $start, displayedComponents: .date)
@@ -65,8 +82,9 @@ struct TripEditSheet: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button(editing == nil ? "作成" : "保存") { save() }
                         .fontWeight(.semibold)
-                        // 写真の読み込み中は保存できない(読み込みが終わる前に閉じないように)
-                        .disabled(pickerItem != nil)
+                        // 写真の読み込み中は保存できない(読み込みが終わる前に閉じないように)。
+                        // 行き先は地図と検索の基準になるので、空のときも保存できない
+                        .disabled(pickerItem != nil || trimmedDestination.isEmpty)
                 }
             }
             .onAppear(perform: loadIfNeeded)
@@ -114,10 +132,12 @@ struct TripEditSheet: View {
     }
 
     private func save() {
-        let dest = destination.trimmingCharacters(in: .whitespacesAndNewlines)
+        let dest = trimmedDestination
+        // ボタンは押せないようにしているが、念のため行き先が空なら保存しない
+        guard !dest.isEmpty else { return }
         let region = Region.match(dest) ?? editing?.region ?? .kyoto
         let finalTitle = title.trimmingCharacters(in: .whitespaces).isEmpty
-            ? (dest.isEmpty ? "新しい旅行" : "\(dest)の旅")
+            ? "\(dest)の旅"
             : title
         let savedID: UUID
         let saved: Bool
