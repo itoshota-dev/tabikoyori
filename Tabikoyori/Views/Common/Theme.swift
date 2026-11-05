@@ -14,7 +14,6 @@ extension Color {
 
 /// アプリ全体の色
 enum Theme {
-    // 参考アプリ(旅のしおり)に合わせた、やわらかいベージュ〜ブラウン
     static let background = Color(hex: 0xF7F3EE)
     static let surface = Color(hex: 0xFDFAF5)
     static let accent = Color(hex: 0xB0846E)

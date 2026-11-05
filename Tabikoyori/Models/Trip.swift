@@ -1,7 +1,7 @@
 import Foundation
 import MapKit
 
-// MARK: - 旅
+// MARK: - 旅行
 
 /// 旅行の状態(計画中・旅行中・完了)
 enum TripStatus: String, Codable, CaseIterable, Identifiable {

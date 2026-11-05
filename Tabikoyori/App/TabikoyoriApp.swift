@@ -3,8 +3,19 @@ import SwiftUI
 /// アプリの入り口。データと画面の状態を用意して、すべての画面に渡す
 @main
 struct TabikoyoriApp: App {
-    @State private var store = TripStore()
+    @State private var store = TabikoyoriApp.makeStore()
     @State private var homeNavigation = HomeNavigation()
+
+    /// ふだんは端末のファイルに保存する。
+    /// UI テストのとき(起動時に -ui-testing が渡されたとき)は、端末のデータに触れないよう、空のメモリの保存先で始める
+    private static func makeStore() -> TripStore {
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("-ui-testing") {
+            return TripStore(repository: InMemoryTripRepository(), deletePhotos: { _ in })
+        }
+        #endif
+        return TripStore()
+    }
 
     var body: some Scene {
         WindowGroup {
