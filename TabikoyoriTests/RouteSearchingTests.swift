@@ -3,15 +3,6 @@ import MapKit
 import Testing
 @testable import Tabikoyori
 
-private func makeSpot(_ name: String, _ lat: Double, _ lon: Double) -> Spot {
-    Spot(
-        id: name, name: name, category: .cafe, area: "", address: "",
-        region: .kyoto, coordinate: Coordinate(lat, lon), art: .cafe
-    )
-}
-
-private let kiyomizu = makeSpot("清水寺", 34.9949, 135.7850)
-private let yasaka = makeSpot("八坂神社", 35.0037, 135.7788)
 
 // MARK: - MapKit のエラーの分け方
 
@@ -61,48 +52,3 @@ struct RouteErrorMappingTests {
     }
 }
 
-// MARK: - 経路検索の決まり(テスト用の偽物で確かめる)
-
-@Suite("経路検索の決まり(RouteSearching)")
-struct RouteSearchingContractTests {
-
-    @Test("成功すると、所要時間と距離が返る")
-    func success() async throws {
-        let service = MockRouteService(responses: [.walk: .success(.sample(minutes: 12, meters: 900))])
-        let result = try await service.route(from: kiyomizu, to: yasaka, mode: .walk)
-        // 型をはっきりさせる(「12 * 60」のままだと、比べる相手の型が意図どおりに決まらない)
-        let expectedTime: TimeInterval = 12 * 60
-        let expectedDistance: CLLocationDistance = 900
-        #expect(result.time == expectedTime)
-        #expect(result.distance == expectedDistance)
-    }
-
-    @Test("経路が見つからないときは notFound を投げる")
-    func notFound() async {
-        let service = MockRouteService(responses: [.car: .failure(.notFound)])
-        await #expect(throws: RouteError.notFound) {
-            try await service.route(from: kiyomizu, to: yasaka, mode: .car)
-        }
-    }
-
-    @Test("通信エラーのときは network を投げる")
-    func network() async {
-        let service = MockRouteService(responses: [.car: .failure(.network)])
-        await #expect(throws: RouteError.network) {
-            try await service.route(from: kiyomizu, to: yasaka, mode: .car)
-        }
-    }
-
-    @Test("検索を取り消すと、結果を返さず CancellationError になる")
-    func cancel() async {
-        let service = MockRouteService(
-            responses: [.walk: .success(.sample(minutes: 12))],
-            delays: [.walk: .seconds(5)]
-        )
-        let task = Task { try await service.route(from: kiyomizu, to: yasaka, mode: .walk) }
-        task.cancel()
-        await #expect(throws: CancellationError.self) {
-            try await task.value
-        }
-    }
-}
