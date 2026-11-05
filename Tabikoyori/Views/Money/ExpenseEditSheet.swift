@@ -2,22 +2,39 @@ import SwiftUI
 
 // MARK: - 支出を追加・編集
 
-/// 支出を追加・編集するシート。外貨で入力したときは、レートで円に換算して保存する
+/// 支出を追加・編集するシート。外貨で入力したときは、支出日のレートで円に換算して保存する
 struct ExpenseEditSheet: View {
     @Environment(TripStore.self) private var store
     @Environment(\.dismiss) private var dismiss
 
     let tripID: UUID
     let expense: Expense?
+    /// レートを取る係(テストやプレビューでは差し替えられる)
+    var rates: any ExchangeRateProviding = ExchangeRates.shared
 
     @State private var title = ""
     @State private var amountText = ""
     @State private var currencyCode = Currency.yenCode
-    /// 外貨1単位が何円か(今は手入力。次の段階で、支出日のレートを自動で入れる)
+    /// 外貨1単位が何円か。支出日のレートを自動で入れる(手で書き換えてもよい)
     @State private var rateText = ""
     @State private var category: ExpenseCategory = .food
     @State private var date = Date()
     @State private var note = ""
+
+    @State private var rateStatus: RateStatus = .idle
+    /// 自動で入れたレートの文字。利用者が書き換えたら、自動では上書きしない
+    @State private var autoRateText = ""
+    /// 編集を開いたときは、保存してあるレートをそのまま使う(最初の1回だけ取りに行かない)
+    @State private var skipNextFetch = false
+    /// 「再試行」を押した回数。変わると、レートを取り直す
+    @State private var retryCount = 0
+
+    private enum RateStatus: Equatable {
+        case idle
+        case loading
+        case loaded(String?)
+        case failed(String)
+    }
 
     private var currency: Currency { Currency(code: currencyCode) }
     /// 入力した金額(選んだ通貨の単位)
@@ -30,6 +47,11 @@ struct ExpenseEditSheet: View {
         if currency.isYen { return CurrencyConversion.yen(from: inputAmount, rate: 1) }
         guard let rate, rate > 0 else { return 0 }
         return CurrencyConversion.yen(from: inputAmount, rate: rate)
+    }
+
+    /// 通貨・支出日・再試行のどれかが変わったら、レートを取り直す
+    private var rateRequestID: String {
+        "\(currencyCode)|\(RateDay.string(for: date))|\(retryCount)"
     }
 
     var body: some View {
@@ -61,7 +83,7 @@ struct ExpenseEditSheet: View {
                 }
                 if !currency.isYen {
                     Section("レート") {
-                        // 「支出の内容」と同じく、1枚のカードにレートの入力と換算した金額を並べる
+                        // 「支出の内容」と同じく、1枚のカードにレートの入力・換算した金額・取得の状態を並べる
                         AppFieldCard {
                             AppTextField(
                                 prompt: "例：162.45",
@@ -90,6 +112,8 @@ struct ExpenseEditSheet: View {
                             .padding(.horizontal, FieldMetrics.horizontalPadding)
                             .padding(.vertical, 10)
                             .frame(maxWidth: .infinity, minHeight: FieldMetrics.height)
+                            AppFieldDivider()
+                            rateStatusRow
                         }
                         .fieldRow()
                     }
@@ -129,8 +153,84 @@ struct ExpenseEditSheet: View {
                 }
             }
             .onAppear(perform: load)
+            // 通貨や支出日を変えると、前の問い合わせは取り消され、新しく取り直す
+            .task(id: rateRequestID) { await fetchRate() }
         }
     }
+
+    // MARK: レートの取得
+
+    /// レートを取得している状態を、カードのいちばん下に出す
+    @ViewBuilder
+    private var rateStatusRow: some View {
+        HStack(spacing: 8) {
+            switch rateStatus {
+            case .idle:
+                Text("レートを入力してください")
+            case .loading:
+                ProgressView().controlSize(.small)
+                Text("支出日のレートを取得中…")
+            case .loaded(let day):
+                if rateText == autoRateText {
+                    Image(systemName: "checkmark.circle")
+                    Text("\((day ?? RateDay.string(for: date)).replacingOccurrences(of: "-", with: "/")) のレート(Frankfurter)")
+                } else {
+                    Image(systemName: "pencil")
+                    Text("手入力したレートを使います")
+                }
+            case .failed(let message):
+                Image(systemName: "exclamationmark.triangle")
+                Text("\(message)。手入力もできます")
+                Spacer()
+                Button("再試行") { retryCount += 1 }
+                    .buttonStyle(.borderless)
+                    .foregroundStyle(Theme.accentDark)
+            }
+        }
+        .font(.system(size: 12))
+        .foregroundStyle(Theme.subText)
+        .padding(.horizontal, FieldMetrics.horizontalPadding)
+        .frame(maxWidth: .infinity, minHeight: 40, alignment: .leading)
+    }
+
+    /// 支出日のレートを取って、レートの欄に入れる
+    private func fetchRate() async {
+        guard !currency.isYen else {
+            rateStatus = .idle
+            return
+        }
+        if skipNextFetch {
+            skipNextFetch = false
+            rateStatus = rateText.isEmpty ? .idle : .loaded(nil)
+            return
+        }
+        // 自動で入れていた前のレートは、取り直すあいだ消しておく(違う通貨のレートで保存しないように)
+        if rateText == autoRateText {
+            rateText = ""
+            autoRateText = ""
+        }
+        rateStatus = .loading
+        do {
+            let result = try await rates.rate(for: currencyCode, on: date)
+            // 待っているあいだに通貨や日付が変わっていたら、この古い結果は使わない
+            guard !Task.isCancelled else { return }
+            let text = NSDecimalNumber(decimal: result.rate).stringValue
+            // 利用者がレートを書き換えていたら、上書きしない
+            if rateText.isEmpty {
+                rateText = text
+                autoRateText = text
+            }
+            rateStatus = .loaded(result.date)
+        } catch is CancellationError {
+            // 新しい問い合わせに切り替わった
+        } catch let error as ExchangeRateError {
+            rateStatus = .failed(error.message)
+        } catch {
+            rateStatus = .failed(ExchangeRateError.invalidResponse.message)
+        }
+    }
+
+    // MARK: 読み込みと保存
 
     private func load() {
         if let expense {
@@ -142,6 +242,9 @@ struct ExpenseEditSheet: View {
             if expense.isForeign, let original = expense.originalAmount {
                 amountText = NSDecimalNumber(decimal: original).stringValue
                 rateText = expense.rate.map { NSDecimalNumber(decimal: $0).stringValue } ?? ""
+                // 保存してあるレートをそのまま使う。支出日などを変えたときは、自動で取り直す
+                autoRateText = rateText
+                skipNextFetch = true
             } else {
                 amountText = String(expense.amount)
             }
