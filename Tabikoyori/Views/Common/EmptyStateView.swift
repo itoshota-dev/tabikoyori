@@ -40,7 +40,7 @@ struct NoTripView: View {
             EmptyStateView(
                 systemImage: "airplane",
                 title: "旅行がありません",
-                message: "ホームの＋から、新しい旅を作成してください。",
+                message: "ホームの＋から、新しい旅行を作成してください。",
                 topPadding: 70 + ChipMetrics.height + 14
             )
             .padding(.horizontal, 20)

@@ -210,7 +210,7 @@ struct HomeView: View {
                 EmptyStateView(
                     systemImage: "airplane.departure",
                     title: "旅行はまだありません",
-                    message: "右下の＋から、最初の旅を計画しましょう。"
+                    message: "右下の＋から、最初の旅行を計画しましょう。"
                 )
             } else {
                 EmptyStateView(

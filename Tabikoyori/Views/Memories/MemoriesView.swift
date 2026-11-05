@@ -26,7 +26,10 @@ struct MemoriesView: View {
                         EmptyStateView(
                             systemImage: "photo.on.rectangle.angled",
                             title: "思い出はまだありません",
-                            message: "右上の＋から、写真やメモを追加できます。"
+                            // 旅行がないと右上の＋は押せないので、先にホームで旅行を作るよう案内する
+                            message: store.trips.isEmpty
+                                ? "ホームの＋から旅行を作成すると、\n写真やメモを追加できます。"
+                                : "右上の＋から、写真やメモを追加できます。"
                         )
                     } else {
                         MemoryTimeline(entries: entries, showsTripTitle: true)
@@ -40,13 +43,15 @@ struct MemoriesView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) { ScreenTitle(text: "旅の思い出") }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        showingAdd = true
-                    } label: {
-                        Image(systemName: "plus")
+                // 思い出は旅行に入れるので、旅行がないときは＋ボタンを出さない
+                if !store.trips.isEmpty {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            showingAdd = true
+                        } label: {
+                            Image(systemName: "plus")
+                        }
                     }
-                    .disabled(store.trips.isEmpty)
                 }
             }
             .sheet(isPresented: $showingAdd) {

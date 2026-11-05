@@ -132,7 +132,7 @@ struct TripStoreStorageTests {
         #expect(store.storageProblem != nil)
         #expect(!store.savingBlocked)
 
-        store.addTrip(makeTrip("新しい旅"))
+        store.addTrip(makeTrip("新しい旅行"))
         #expect(repo.saveCount == 1)
     }
 
@@ -146,7 +146,7 @@ struct TripStoreStorageTests {
         #expect(store.savingBlocked)
         #expect(store.storageProblem != nil)
 
-        store.addTrip(makeTrip("新しい旅"))
+        store.addTrip(makeTrip("新しい旅行"))
         // 保存していない = 元のデータが空のデータで上書きされていない
         #expect(repo.saveCount == 0)
         #expect(repo.stored == original)

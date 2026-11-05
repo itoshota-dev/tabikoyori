@@ -56,7 +56,7 @@ struct TripEditSheet: View {
             }
             .scrollContentBackground(.hidden)
             .background(Theme.background.ignoresSafeArea())
-            .navigationTitle(editing == nil ? "新しい旅" : "旅行を編集")
+            .navigationTitle(editing == nil ? "新しい旅行" : "旅行を編集")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -117,7 +117,7 @@ struct TripEditSheet: View {
         let dest = destination.trimmingCharacters(in: .whitespacesAndNewlines)
         let region = Region.match(dest) ?? editing?.region ?? .kyoto
         let finalTitle = title.trimmingCharacters(in: .whitespaces).isEmpty
-            ? (dest.isEmpty ? "新しい旅" : "\(dest)の旅")
+            ? (dest.isEmpty ? "新しい旅行" : "\(dest)の旅")
             : title
         let savedID: UUID
         let saved: Bool
