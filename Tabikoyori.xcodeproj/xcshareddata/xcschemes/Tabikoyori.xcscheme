@@ -71,6 +71,12 @@
             ReferencedContainer = "container:Tabikoyori.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <CommandLineArguments>
+         <CommandLineArgument
+            argument = "-sample-data"
+            isEnabled = "NO">
+         </CommandLineArgument>
+      </CommandLineArguments>
       <MetalAPIValidationSettings
          isEnabled = "No">
       </MetalAPIValidationSettings>

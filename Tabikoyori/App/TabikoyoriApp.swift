@@ -14,6 +14,15 @@ struct TabikoyoriApp: App {
             return TripStore(repository: InMemoryTripRepository(), deletePhotos: { _ in })
         }
         #endif
+        
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("-sample-data") {
+            let store = TripStore()
+            SampleData.importIfNeeded(into: store)
+            return store
+        }
+        #endif
+        
         return TripStore()
     }
 
