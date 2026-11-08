@@ -503,6 +503,7 @@ final class TripStore {
             bookmarkDates = [:]
             savedSpots = [:]
             customTemplates = []
+            userName = "旅人"
         }
         if erased {
             selectedTripID = nil
