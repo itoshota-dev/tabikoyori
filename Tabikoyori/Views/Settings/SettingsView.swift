@@ -63,6 +63,14 @@ struct SettingsView: View {
                 Section("旅こよりについて") {
                     LabeledContent("バージョン") { Text(appVersion) }
                         .listRowBackground(Theme.surface)
+                    Link(destination: URL(string: "https://itoshota-dev.github.io/tabikoyori/privacy.html")!) {
+                        Label("プライバシーポリシー", systemImage: "hand.raised")
+                    }
+                    .listRowBackground(Theme.surface)
+                    Link(destination: URL(string: "https://itoshota-dev.github.io/tabikoyori/support.html")!) {
+                        Label("サポート・お問い合わせ", systemImage: "questionmark.circle")
+                    }
+                    .listRowBackground(Theme.surface)
                     Text("スポットの詳細には、Apple マップの詳細カード(営業時間・電話・サイト・住所)を表示しています。写真や口コミは、詳細画面の「Appleマップ」「Googleマップ」ボタンで開いて確認できます。")
                         .font(.system(size: 12))
                         .foregroundStyle(Theme.subText)
