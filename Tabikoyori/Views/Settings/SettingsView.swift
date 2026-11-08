@@ -5,7 +5,7 @@ struct SettingsView: View {
     @Environment(TripStore.self) private var store
 
     @State private var confirmErase = false
-    @State private var editingAccount = false
+    @State private var editingProfile = false
     @AppStorage("weekStartsMonday") private var weekStartsMonday = false
 
     /// アプリのバージョン(Xcode の設定の Version と Build から読む)。例: 「1.0 (1)」
@@ -29,10 +29,10 @@ struct SettingsView: View {
                     .listRowBackground(Theme.surface)
                     // ニックネームは、この画面では直接変えず、編集画面で変えて保存する
                     Button {
-                        editingAccount = true
+                        editingProfile = true
                     } label: {
                         HStack {
-                            Text("アカウント情報を変更")
+                            Text("ニックネームを変更")
                                 .foregroundStyle(Theme.text)
                             Spacer()
                             Image(systemName: "chevron.right")
@@ -89,8 +89,8 @@ struct SettingsView: View {
             .toolbar {
                 ToolbarItem(placement: .principal) { ScreenTitle(text: "設定") }
             }
-            .sheet(isPresented: $editingAccount) {
-                AccountEditSheet()
+            .sheet(isPresented: $editingProfile) {
+                ProfileEditSheet()
             }
             .confirmationDialog("すべてのデータを削除しますか？", isPresented: $confirmErase, titleVisibility: .visible) {
                 Button("削除", role: .destructive) { store.eraseAll() }
@@ -101,10 +101,10 @@ struct SettingsView: View {
     }
 }
 
-// MARK: - アカウント情報の編集
+// MARK: - プロフィールの編集
 
-/// ニックネームなどのアカウント情報を変えるシート
-struct AccountEditSheet: View {
+/// ニックネームなどのプロフィールを変えるシート
+struct ProfileEditSheet: View {
     @Environment(TripStore.self) private var store
     @Environment(\.dismiss) private var dismiss
 
@@ -132,7 +132,7 @@ struct AccountEditSheet: View {
             }
             .scrollContentBackground(.hidden)
             .background(Theme.background.ignoresSafeArea())
-            .navigationTitle("アカウント情報")
+            .navigationTitle("プロフィール")
             // 保存に失敗したときは閉じないので、ここでもお知らせを出す
             .storageProblemAlert()
             .navigationBarTitleDisplayMode(.inline)
