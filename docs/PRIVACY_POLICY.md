@@ -2,7 +2,7 @@
 
 旅こより(以下「本アプリ」)は、利用者のプライバシーを大切にします。このページでは、本アプリが扱う情報と、その扱い方を説明します。
 
-最終更新日：2026年11月8日
+最終更新日：2026年11月15日
 
 ## 1. 個人情報の取り扱いについて
 
@@ -45,7 +45,7 @@
 
 - Apple のプライバシーポリシー：https://www.apple.com/legal/privacy/jp/
 - Google のプライバシーポリシー：https://policies.google.com/privacy?hl=ja
-- Frankfurter:https://frankfurter.dev/
+- Frankfurter：https://frankfurter.dev/
 
 ## 6. お子さまの利用
 
